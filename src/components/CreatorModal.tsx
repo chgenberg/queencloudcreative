@@ -84,6 +84,7 @@ export default function CreatorModal({ onClose, onGenerated, onGeneratingChange 
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("landscape");
   const [selectedStyles, setSelectedStyles] = useState<CreativeStyle[]>(["iceCube", "liquidMetal"]);
   const [file, setFile] = useState<File | null>(null);
+  const [analysisFile, setAnalysisFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   
   // UI state
@@ -146,22 +147,104 @@ export default function CreatorModal({ onClose, onGenerated, onGeneratingChange 
     return () => timers.forEach(clearTimeout);
   }, [isGenerating]);
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
+  const extractVideoFrame = useCallback(async (videoFile: File): Promise<File> => {
+    const objectUrl = URL.createObjectURL(videoFile);
+    try {
+      const video = document.createElement("video");
+      video.src = objectUrl;
+      video.muted = true;
+      video.playsInline = true;
+      video.crossOrigin = "anonymous";
+
+      await new Promise<void>((resolve, reject) => {
+        const onLoaded = () => resolve();
+        const onError = () => reject(new Error("Could not load video"));
+        video.addEventListener("loadeddata", onLoaded, { once: true });
+        video.addEventListener("error", onError, { once: true });
+      });
+
+      // Seek to a small offset to avoid black first frame
+      const seekTime = Math.min(0.2, Math.max(0.0, (video.duration || 1) * 0.05));
+      video.currentTime = seekTime;
+
+      await new Promise<void>((resolve, reject) => {
+        const onSeeked = () => resolve();
+        const onError = () => reject(new Error("Could not seek video"));
+        video.addEventListener("seeked", onSeeked, { once: true });
+        video.addEventListener("error", onError, { once: true });
+      });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Could not get canvas context");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error("Could not extract frame"))),
+          "image/jpeg",
+          0.92
+        );
+      });
+
+      return new File([blob], "video-frame.jpg", { type: "image/jpeg" });
+    } finally {
+      URL.revokeObjectURL(objectUrl);
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handlePickedFile = useCallback(
+    async (picked: File) => {
+      setError(null);
+      setFile(picked);
+      setPreview(URL.createObjectURL(picked));
+
+      if (picked.type.startsWith("video/")) {
+        // Extract a keyframe for analysis + generation (current backend only accepts images)
+        const frame = await extractVideoFrame(picked);
+        setAnalysisFile(frame);
+      } else {
+        setAnalysisFile(picked);
+      }
+    },
+    [extractVideoFrame]
+  );
+
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) {
+        try {
+          await handlePickedFile(selectedFile);
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not process uploaded file. Please try again."
+          );
+        }
+      }
+    },
+    [handlePickedFile]
+  );
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files?.[0];
     if (droppedFile) {
-      setFile(droppedFile);
-      setPreview(URL.createObjectURL(droppedFile));
+      try {
+        await handlePickedFile(droppedFile);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not process uploaded file. Please try again."
+        );
+      }
     }
-  }, []);
+  }, [handlePickedFile]);
 
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
@@ -197,7 +280,7 @@ export default function CreatorModal({ onClose, onGenerated, onGeneratingChange 
   };
 
   const handleGenerate = async () => {
-    if (!file || !email || selectedStyles.length !== 2) return;
+    if (!file || !analysisFile || !email || selectedStyles.length !== 2) return;
 
     setIsGenerating(true);
     onGeneratingChange(true);
@@ -211,7 +294,8 @@ export default function CreatorModal({ onClose, onGenerated, onGeneratingChange 
       };
 
       const formData = new FormData();
-      formData.append("file", file);
+      // Always send an IMAGE to the API (for video uploads we send an extracted frame)
+      formData.append("file", analysisFile);
       formData.append("email", email);
       formData.append("outputType", outputType);
       formData.append("aspectRatio", aspectRatio);

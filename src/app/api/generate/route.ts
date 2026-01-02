@@ -60,7 +60,7 @@ Describe the visual essence that should be captured when transforming this into 
           {
             type: "image_url",
             image_url: {
-              url: `data:image/jpeg;base64,${imageBase64}`,
+              url: imageBase64,
             },
           },
         ],
@@ -70,6 +70,10 @@ Describe the visual essence that should be captured when transforming this into 
   });
 
   return response.choices[0]?.message?.content || "";
+}
+
+function isSupportedImageMime(mime: string) {
+  return ["image/png", "image/jpeg", "image/gif", "image/webp"].includes(mime);
 }
 
 // Creative style definitions - GPT Image 1.5 optimized prompts
@@ -226,6 +230,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate file type (we analyze an image, even for video mode)
+    const mime = file.type || "";
+    if (!mime.startsWith("image/") || !isSupportedImageMime(mime)) {
+      return NextResponse.json(
+        {
+          error:
+            `Unsupported upload format (${mime || "unknown"}). ` +
+            `Please upload a PNG, JPEG, GIF, or WEBP image. ` +
+            `If you're generating a video, upload a video and we'll extract a frame (client-side) — if this persists, re-upload.` ,
+        },
+        { status: 400 }
+      );
+    }
+
     const brandData: BrandData = JSON.parse(brandDataStr);
     console.log("Brand:", brandData.brandName);
 
@@ -237,7 +255,8 @@ export async function POST(request: NextRequest) {
 
     // Analyze the uploaded image
     console.log("Analyzing image with GPT Vision...");
-    const imageAnalysis = await analyzeImage(base64, brandData);
+    const dataUrl = `data:${mime};base64,${base64}`;
+    const imageAnalysis = await analyzeImage(dataUrl, brandData);
     console.log("Image analysis complete:", imageAnalysis.slice(0, 100));
 
     // Generate prompts for content
