@@ -57,81 +57,142 @@ export default function Home() {
   const features = t("features") as string[];
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-950 dark:via-black dark:to-neutral-900" />
+    <main className="min-h-screen relative overflow-hidden">
+      {/* Background Image - Desktop */}
+      <div 
+        className="absolute inset-0 hidden md:block bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/backgrund_queencloudcreative.png')" }}
+      />
       
-      {/* Floating orbs for visual interest */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-amber-100/20 to-orange-100/20 dark:from-amber-900/10 dark:to-orange-900/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-br from-rose-100/20 to-pink-100/20 dark:from-rose-900/10 dark:to-pink-900/10 rounded-full blur-3xl" />
+      {/* Background Image - Mobile */}
+      <div 
+        className="absolute inset-0 md:hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/backgrund_queencloudcreative_mobile.png')" }}
+      />
+      
+      {/* Dark overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/30" />
+      
+      {/* Animated gradient overlay */}
+      <motion.div 
+        className="absolute inset-0 opacity-40"
+        animate={{
+          background: [
+            "radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.15) 0%, transparent 50%)",
+            "radial-gradient(circle at 80% 50%, rgba(251, 191, 36, 0.15) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.15) 0%, transparent 50%)",
+          ],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-      <div className="relative z-10 w-full max-w-2xl mx-auto">
-        {/* Logo / Brand */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-medium tracking-wider uppercase text-neutral-500 dark:text-neutral-400">
-              {t("tagline")}
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-            {t("heroTitle1") as string}
-            <br />
-            <span className="font-medium">{t("heroTitle2") as string}</span>
-          </h1>
-          <p className="text-neutral-500 dark:text-neutral-400 text-lg max-w-md mx-auto">
-            {t("heroDescription") as string}
-          </p>
-        </motion.div>
-
-        {/* CTA Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex justify-center"
-        >
-          <button
-            onClick={() => setShowModal(true)}
+      {/* Content Container */}
+      <div className="relative z-10 min-h-screen flex items-start md:items-center px-6 py-12 md:py-0">
+        <div className="w-full max-w-7xl mx-auto">
+          {/* Hero Card - Left on desktop, Top on mobile */}
+          <motion.div
+            initial={{ opacity: 0, x: -30, y: 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="
-              group relative px-8 py-4 
-              bg-neutral-900 dark:bg-white 
-              text-white dark:text-neutral-900
-              rounded-2xl font-medium text-lg
-              hover:bg-neutral-800 dark:hover:bg-neutral-100
-              transition-all duration-300
-              flex items-center gap-3
-              shadow-lg shadow-neutral-900/20 dark:shadow-white/20
-              hover:shadow-xl hover:shadow-neutral-900/30 dark:hover:shadow-white/30
-              hover:scale-105
+              w-full md:w-[480px] 
+              mt-8 md:mt-0
+              bg-white/95 dark:bg-neutral-900/95 
+              backdrop-blur-xl 
+              rounded-3xl 
+              p-8 md:p-10
+              shadow-2xl shadow-black/20
+              border border-white/20
             "
           >
-            {t("getStarted") as string}
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </motion.div>
+            {/* Logo / Brand */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8"
+            >
+              <div className="inline-flex items-center gap-2 mb-6">
+                <motion.div 
+                  className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30"
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Sparkles className="w-5 h-5 text-white" />
+                </motion.div>
+                <span className="text-sm font-semibold tracking-wider uppercase text-neutral-500 dark:text-neutral-400">
+                  {t("tagline")}
+                </span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-light tracking-tight mb-4 text-neutral-900 dark:text-white">
+                {t("heroTitle1") as string}
+                <br />
+                <span className="font-semibold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+                  {t("heroTitle2") as string}
+                </span>
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400 text-base leading-relaxed">
+                {t("heroDescription") as string}
+              </p>
+            </motion.div>
 
-        {/* Features hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-20 flex flex-wrap justify-center gap-6 text-sm text-neutral-400 dark:text-neutral-500"
-        >
-          {features.map((feature) => (
-            <span key={feature} className="flex items-center gap-2">
-              <span className="w-1 h-1 bg-current rounded-full" />
-              {feature}
-            </span>
-          ))}
-        </motion.div>
+            {/* CTA Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <button
+                onClick={() => setShowModal(true)}
+                className="
+                  group relative w-full px-8 py-4 
+                  bg-gradient-to-r from-amber-500 to-orange-500
+                  text-white
+                  rounded-2xl font-semibold text-lg
+                  hover:from-amber-600 hover:to-orange-600
+                  transition-all duration-300
+                  flex items-center justify-center gap-3
+                  shadow-lg shadow-amber-500/30
+                  hover:shadow-xl hover:shadow-amber-500/40
+                  hover:scale-[1.02]
+                "
+              >
+                {t("getStarted") as string}
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </motion.div>
+
+            {/* Features hint */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-700"
+            >
+              <div className="flex flex-wrap gap-3">
+                {features.map((feature, index) => (
+                  <motion.span 
+                    key={feature} 
+                    className="
+                      flex items-center gap-2 
+                      text-xs font-medium
+                      px-3 py-1.5 
+                      bg-neutral-100 dark:bg-neutral-800 
+                      text-neutral-600 dark:text-neutral-400
+                      rounded-full
+                    "
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
+                  >
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                    {feature}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Creator Modal */}
