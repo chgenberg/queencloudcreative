@@ -279,7 +279,7 @@ export default function CreatorModal({ onClose, onGenerated, onGeneratingChange 
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="font-medium">{brandName || "Queenbee"}</h2>
+              <h2 className="font-medium">{brandName || "Queencloudcreative"}</h2>
               <p className="text-xs text-neutral-500">
                 {t("stepOf") as string} {step} {t("of") as string} {totalSteps}
               </p>

@@ -3,7 +3,7 @@ export type Language = "sv" | "en";
 export const translations = {
   sv: {
     // Header
-    tagline: "Queenbee",
+    tagline: "Queencloudcreative",
     
     // Hero
     heroTitle1: "Din varumärkesberättelse,",
@@ -113,7 +113,7 @@ export const translations = {
   },
   en: {
     // Header
-    tagline: "Queenbee",
+    tagline: "Queencloudcreative",
     
     // Hero
     heroTitle1: "Your brand story,",

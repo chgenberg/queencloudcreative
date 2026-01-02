@@ -87,7 +87,7 @@ export default function Home() {
       />
 
       {/* Content Container */}
-      <div className="relative z-10 min-h-screen flex items-start md:items-center px-6 py-12 md:py-0">
+      <div className="relative z-10 min-h-screen flex items-start md:items-center px-6 py-8 md:py-0">
         <div className="w-full max-w-7xl mx-auto">
           {/* Hero Card - Left on desktop, Top on mobile */}
           <motion.div
@@ -95,12 +95,12 @@ export default function Home() {
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="
-              w-full md:w-[480px] 
-              mt-8 md:mt-0
+              w-full md:w-[480px]
+              mt-2 md:mt-0
               bg-white/95 dark:bg-neutral-900/95 
               backdrop-blur-xl 
               rounded-3xl 
-              p-8 md:p-10
+              p-6 md:p-10
               shadow-2xl shadow-black/20
               border border-white/20
             "

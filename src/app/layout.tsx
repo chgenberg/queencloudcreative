@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Queenbee | DOOH Creative Generator",
+  title: "Queencloudcreative | DOOH Creative Generator",
   description: "Transform your brand into stunning digital out-of-home advertising in seconds",
 };
 
